@@ -44,7 +44,8 @@ The Travel Agent is more complex, handling an end-to-end travel booking task:
 ## Setup
 
 ### To get started:
-1. Import the BPMN files and forms into your Camunda Modeler.
+1. Import the BPMN files and forms into your Camunda Modeler (For SAAS you can just use this link: 
+https://modeler.cloud.camunda.io/import/processes?source=https://raw.githubusercontent.com/bastiankoerber/AI-Agent-Sample/refs/heads/main/Travel%20Agent%20Demo.bpmn,https://raw.githubusercontent.com/bastiankoerber/AI-Agent-Sample/refs/heads/main/Booking%20Agent.bpmn,https://raw.githubusercontent.com/bastiankoerber/AI-Agent-Sample/refs/heads/main/Search%20Agent.bpmn,https://raw.githubusercontent.com/bastiankoerber/AI-Agent-Sample/refs/heads/main/Travel%20Request%20User%20Input.form.
 2. Add the following secrets to your Camunda cluster:
    - `AI_AWS_BEDROCK_SECRET_KEY`
    - `AI_AWS_BEDROCK_ACCESS_KEY`
