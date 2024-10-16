@@ -1,0 +1,74 @@
+{
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.5.0",
+  "exporter": {
+    "name": "Camunda Web Modeler",
+    "version": "3baa5d2"
+  },
+  "schemaVersion": 16,
+  "id": "Form_zb19qyf",
+  "components": [
+    {
+      "text": "## AI Travel Agent\n\n**The ✈️ AI Travel Agent turns your text-based requests into complete travel itineraries, handling booking across flights, hotels, and car rentals seamlessly.** \n\n*Key Features*\n- **Smart Query:** Converts your input into structured travel queries.\n- **Multi-Agent Search:** Leverages specialized agents to find the best options for hotels, flights, and cars.\n- **Itinerary Creation:** Assembles an itinerary for your review and approval.\n\n**Where would you like to go?**",
+      "label": "Text view",
+      "type": "text",
+      "layout": {
+        "row": "Row_0ubrae5",
+        "columns": null
+      },
+      "id": "Field_1hlhuvb"
+    },
+    {
+      "label": "About User",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_0iag5mf",
+        "columns": null
+      },
+      "id": "Field_0mv2cox",
+      "key": "aboutUser",
+      "description": "Information about the user that may help the agent to select the best option including multi-lingual support.",
+      "defaultValue": "I live in London, UK, and travel from there unless otherwise stated.  I prefer LHR for private trips and City or Gatwick for flights for work.\n\nMy work policy allows me to book business class for flights over 4 hours. \n\nPrivat ziehe ich günstige Economy Flüge auf kurzen Strecken und Premium Economy auf langen Strecken vor.\n\nNous sommes une famille de quatre personnes : ma femme, moi et deux enfants de 12 et 18 ans."
+    },
+    {
+      "text": "## AI Question",
+      "label": "Text view",
+      "type": "text",
+      "layout": {
+        "row": "Row_1o9pqsb",
+        "columns": null
+      },
+      "id": "Field_0a0687k",
+      "conditional": {
+        "hide": "=ask_user = null"
+      }
+    },
+    {
+      "text": "=ask_user.message",
+      "label": "Text view",
+      "type": "text",
+      "layout": {
+        "row": "Row_1ce0lw7",
+        "columns": null
+      },
+      "id": "Field_01yodjd",
+      "conditional": {
+        "hide": "=ask_user = null"
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "Textarea_1",
+      "label": "Travel Request",
+      "key": "travelRequest",
+      "layout": {
+        "row": "Row_1wn4h50",
+        "columns": null
+      },
+      "description": "Please input as much details about your desired trip as you can.",
+      "defaultValue": "Book a family trip to somewhere nice and sunny, up to 10h flight time away, in summer. Surprise me. Include a car so we can explore the sights and make it an apartment rather than a hotel if possible."
+    }
+  ],
+  "generated": true,
+  "type": "default"
+}

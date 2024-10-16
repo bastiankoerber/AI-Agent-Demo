@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="e9cadfa" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.6.0" camunda:diagramRelationId="bdc3b3d7-01d0-443f-9877-4d3d789bc6ce">
+  <bpmn:escalation id="Escalation_2s4sccs" name="more user input necessary" escalationCode="more_user_input_necessary" />
+  <bpmn:process id="Process_n9egkg7" name="Travel Agent" isExecutable="true">
+    <bpmn:callActivity id="Activity_0qu8i6a" name="Book Agent">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:input source="=final_trip" target="final_trip" />
+          <zeebe:input source="=filteredOptions" target="filteredOptions" />
+          <zeebe:input source="=agentAction" target="agentAction" />
+        </zeebe:ioMapping>
+        <zeebe:calledElement processId="BookingAgent" propagateAllChildVariables="false" propagateAllParentVariables="false" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1aahb98</bpmn:incoming>
+      <bpmn:outgoing>Flow_1e8wmah</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="Event_0fhxeei" name="booking successful">
+      <bpmn:incoming>Flow_1e8wmah</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="Event_0xrigcp" name="fatal - restart&#10;necessary" attachedToRef="Activity_1e8eivr">
+      <bpmn:outgoing>Flow_1tk3u08</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0k48094" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_069dstt" sourceRef="Gateway_15hgze1" targetRef="Activity_02hk0s9" />
+    <bpmn:sequenceFlow id="Flow_0d49ikq" sourceRef="Event_1i9z5oj" targetRef="Gateway_15hgze1" />
+    <bpmn:sequenceFlow id="Flow_0p2r3gt" sourceRef="Activity_02hk0s9" targetRef="Activity_1e8eivr" />
+    <bpmn:sequenceFlow id="Flow_0t8gas3" sourceRef="StartEvent_1" targetRef="Gateway_15hgze1" />
+    <bpmn:sequenceFlow id="Flow_0uk06sw" sourceRef="Activity_1e8eivr" targetRef="Event_1mk4dj8" />
+    <bpmn:sequenceFlow id="Flow_1aahb98" sourceRef="Event_1mk4dj8" targetRef="Activity_0qu8i6a" />
+    <bpmn:sequenceFlow id="Flow_1e8wmah" sourceRef="Activity_0qu8i6a" targetRef="Event_0fhxeei" />
+    <bpmn:sequenceFlow id="Flow_1tk3u08" sourceRef="Event_0xrigcp" targetRef="Activity_1e8eivr" />
+    <bpmn:exclusiveGateway id="Gateway_15hgze1">
+      <bpmn:incoming>Flow_0t8gas3</bpmn:incoming>
+      <bpmn:incoming>Flow_0d49ikq</bpmn:incoming>
+      <bpmn:outgoing>Flow_069dstt</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:boundaryEvent id="Event_1i9z5oj" name="more user input necessary" attachedToRef="Activity_1e8eivr">
+      <bpmn:outgoing>Flow_0d49ikq</bpmn:outgoing>
+      <bpmn:escalationEventDefinition id="EscalationEventDefinition_0d8s7xs" escalationRef="Escalation_2s4sccs" />
+    </bpmn:boundaryEvent>
+    <bpmn:intermediateThrowEvent id="Event_1mk4dj8" name="ready to book">
+      <bpmn:incoming>Flow_0uk06sw</bpmn:incoming>
+      <bpmn:outgoing>Flow_1aahb98</bpmn:outgoing>
+    </bpmn:intermediateThrowEvent>
+    <bpmn:subProcess id="Activity_1e8eivr" name="Travel Agent Loop">
+      <bpmn:incoming>Flow_0p2r3gt</bpmn:incoming>
+      <bpmn:incoming>Flow_1tk3u08</bpmn:incoming>
+      <bpmn:outgoing>Flow_0uk06sw</bpmn:outgoing>
+      <bpmn:scriptTask id="Activity_10isszj" name="Combine Results">
+        <bpmn:extensionElements>
+          <zeebe:script expression="={&#10;  &#34;options&#34;: [&#10;    if hotel_agent_options != null and hotel_agent_options != &#34;&#34; then &#34;hotel_agent_options: &#34; + hotel_agent_options else null,&#10;    if flight_agent_options != null and flight_agent_options != &#34;&#34; then &#34;flight_agent_options: &#34; + flight_agent_options else null,&#10;    if car_agent_options != null and car_agent_options != &#34;&#34; then &#34;car_agent_options: &#34; + car_agent_options else null&#10;  ],&#10;  &#34;filteredOptions&#34;: options[item != null],&#10;  &#34;result&#34;: string join(filteredOptions, &#34; &#34;)&#10;}.result" resultVariable="filteredOptions" />
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_11ns9ga</bpmn:incoming>
+        <bpmn:outgoing>Flow_1vce2q0</bpmn:outgoing>
+      </bpmn:scriptTask>
+      <bpmn:endEvent id="Event_12fxaw2" name="fatal - restart&#10;necessary">
+        <bpmn:incoming>Flow_0p75q7z</bpmn:incoming>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_0m2tgua" errorRef="Error_0b0466z" />
+      </bpmn:endEvent>
+      <bpmn:intermediateThrowEvent id="Event_0w82kpb" name="feedback loop - return to agent A">
+        <bpmn:incoming>Flow_0125gfk</bpmn:incoming>
+        <bpmn:linkEventDefinition id="LinkEventDefinition_1x8uy2d" name="feedbackLoop" />
+      </bpmn:intermediateThrowEvent>
+      <bpmn:intermediateCatchEvent id="Event_1mcib2v" name="feedback loop - return to agent A">
+        <bpmn:outgoing>Flow_0wnmdyo</bpmn:outgoing>
+        <bpmn:linkEventDefinition id="LinkEventDefinition_124zrxi" name="feedbackLoop" />
+      </bpmn:intermediateCatchEvent>
+      <bpmn:sequenceFlow id="Flow_07d1erl" sourceRef="Event_19020l5" targetRef="Gateway_1i8lu60" />
+      <bpmn:sequenceFlow id="Flow_09duxhp" sourceRef="Activity_0af1fsn" targetRef="Gateway_11rejr2" />
+      <bpmn:sequenceFlow id="Flow_0k4qsoh" sourceRef="Gateway_1i8lu60" targetRef="Activity_1euydfr" />
+      <bpmn:sequenceFlow id="Flow_0p75q7z" sourceRef="Event_1s0snhq" targetRef="Event_12fxaw2" />
+      <bpmn:sequenceFlow id="Flow_0wnmdyo" sourceRef="Event_1mcib2v" targetRef="Gateway_1i8lu60" />
+      <bpmn:sequenceFlow id="Flow_11ns9ga" sourceRef="Activity_06fk3nr" targetRef="Activity_10isszj" />
+      <bpmn:sequenceFlow id="Flow_15ycwt5" sourceRef="Activity_1euydfr" targetRef="Gateway_0zmv90e" />
+      <bpmn:sequenceFlow id="Flow_16nhb9y" sourceRef="Activity_1vz26di" targetRef="Activity_0af1fsn" />
+      <bpmn:sequenceFlow id="Flow_1jothvu" sourceRef="Event_0mxgu99" targetRef="Activity_06fk3nr" />
+      <bpmn:sequenceFlow id="Flow_1vce2q0" sourceRef="Activity_10isszj" targetRef="Activity_1vz26di" />
+      <bpmn:exclusiveGateway id="Gateway_1i8lu60">
+        <bpmn:incoming>Flow_0wnmdyo</bpmn:incoming>
+        <bpmn:incoming>Flow_07d1erl</bpmn:incoming>
+        <bpmn:outgoing>Flow_0k4qsoh</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="Event_0xogevo" name="more user input necessary">
+        <bpmn:extensionElements />
+        <bpmn:incoming>Flow_0xvdidi</bpmn:incoming>
+        <bpmn:escalationEventDefinition id="EscalationEventDefinition_1min8qa" escalationRef="Escalation_2s4sccs" />
+      </bpmn:endEvent>
+      <bpmn:exclusiveGateway id="Gateway_0zmv90e" name="More user input necessary?" default="Flow_0xvdidi">
+        <bpmn:incoming>Flow_15ycwt5</bpmn:incoming>
+        <bpmn:outgoing>Flow_0xvdidi</bpmn:outgoing>
+        <bpmn:outgoing>Flow_1planii</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:sequenceFlow id="Flow_0125gfk" name="no" sourceRef="Gateway_11rejr2" targetRef="Event_0w82kpb" />
+      <bpmn:sequenceFlow id="Flow_1planii" name="no" sourceRef="Gateway_0zmv90e" targetRef="Event_0mxgu99">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=ask_user = null</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:exclusiveGateway id="Gateway_11rejr2" name="Proceed with booking?" default="Flow_0125gfk">
+        <bpmn:incoming>Flow_09duxhp</bpmn:incoming>
+        <bpmn:outgoing>Flow_0125gfk</bpmn:outgoing>
+        <bpmn:outgoing>Flow_1dn55c4</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:intermediateThrowEvent id="Event_0mxgu99" name="ready to search">
+        <bpmn:incoming>Flow_1planii</bpmn:incoming>
+        <bpmn:outgoing>Flow_1jothvu</bpmn:outgoing>
+      </bpmn:intermediateThrowEvent>
+      <bpmn:userTask id="Activity_0af1fsn" name="Review Itinerary">
+        <bpmn:extensionElements>
+          <zeebe:formDefinition formId="approvePlanning" />
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_16nhb9y</bpmn:incoming>
+        <bpmn:outgoing>Flow_09duxhp</bpmn:outgoing>
+      </bpmn:userTask>
+      <bpmn:boundaryEvent id="Event_1s0snhq" name="search agent failed" attachedToRef="Activity_06fk3nr">
+        <bpmn:outgoing>Flow_0p75q7z</bpmn:outgoing>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_0eh75co" />
+      </bpmn:boundaryEvent>
+      <bpmn:subProcess id="Activity_06fk3nr" name="Search Agents Process">
+        <bpmn:incoming>Flow_1jothvu</bpmn:incoming>
+        <bpmn:outgoing>Flow_11ns9ga</bpmn:outgoing>
+        <bpmn:sequenceFlow id="Flow_0gjxk47" name="car" sourceRef="Gateway_0vixnk6" targetRef="Activity_1q7lie0">
+          <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=car_agent != null</bpmn:conditionExpression>
+        </bpmn:sequenceFlow>
+        <bpmn:endEvent id="Event_11qqcjc" name="car agent finished">
+          <bpmn:incoming>Flow_14ejav6</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:callActivity id="Activity_1q7lie0" name="Car Search Agent">
+          <bpmn:extensionElements>
+            <zeebe:ioMapping>
+              <zeebe:input source="=car_agent" target="relevant_agent" />
+              <zeebe:input source="=&#34;list&#34;" target="agentAction" />
+              <zeebe:output source="=summarizedPlan" target="car_agent_options" />
+            </zeebe:ioMapping>
+            <zeebe:calledElement processId="SearchAgent" propagateAllChildVariables="false" propagateAllParentVariables="false" />
+          </bpmn:extensionElements>
+          <bpmn:incoming>Flow_0gjxk47</bpmn:incoming>
+          <bpmn:outgoing>Flow_14ejav6</bpmn:outgoing>
+        </bpmn:callActivity>
+        <bpmn:sequenceFlow id="Flow_0m3946w" name="flight" sourceRef="Gateway_0vixnk6" targetRef="Activity_1v40ho8">
+          <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=flight_agent != null</bpmn:conditionExpression>
+        </bpmn:sequenceFlow>
+        <bpmn:endEvent id="Event_1bcvlay" name="flight agent finished">
+          <bpmn:incoming>Flow_1dgataw</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:callActivity id="Activity_1v40ho8" name="Flight Search Agent">
+          <bpmn:extensionElements>
+            <zeebe:ioMapping>
+              <zeebe:input source="=flight_agent" target="relevant_agent" />
+              <zeebe:input source="=&#34;list&#34;" target="agentAction" />
+              <zeebe:output source="=summarizedPlan" target="flight_agent_options" />
+            </zeebe:ioMapping>
+            <zeebe:calledElement processId="SearchAgent" propagateAllChildVariables="false" propagateAllParentVariables="false" />
+          </bpmn:extensionElements>
+          <bpmn:incoming>Flow_0m3946w</bpmn:incoming>
+          <bpmn:outgoing>Flow_1dgataw</bpmn:outgoing>
+        </bpmn:callActivity>
+        <bpmn:sequenceFlow id="Flow_0hjra2c" sourceRef="Gateway_0vixnk6" targetRef="Event_09bcxxs" />
+        <bpmn:sequenceFlow id="Flow_0u7bbex" sourceRef="Activity_0xvq4gn" targetRef="Event_17u2fzp" />
+        <bpmn:sequenceFlow id="Flow_14ejav6" sourceRef="Activity_1q7lie0" targetRef="Event_11qqcjc" />
+        <bpmn:sequenceFlow id="Flow_1dgataw" sourceRef="Activity_1v40ho8" targetRef="Event_1bcvlay" />
+        <bpmn:sequenceFlow id="Flow_1ii72el" sourceRef="Event_1nftt3l" targetRef="Gateway_0vixnk6" />
+        <bpmn:sequenceFlow id="Flow_1sp67o9" name="hotel" sourceRef="Gateway_0vixnk6" targetRef="Activity_0xvq4gn">
+          <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=hotel_agent != null</bpmn:conditionExpression>
+        </bpmn:sequenceFlow>
+        <bpmn:endEvent id="Event_17u2fzp" name="hotel agent finished">
+          <bpmn:incoming>Flow_0u7bbex</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:callActivity id="Activity_0xvq4gn" name="Hotel Search Agent">
+          <bpmn:extensionElements>
+            <zeebe:ioMapping>
+              <zeebe:input source="=hotel_agent" target="relevant_agent" />
+              <zeebe:input source="=&#34;list&#34;" target="agentAction" />
+              <zeebe:output source="=summarizedPlan" target="hotel_agent_options" />
+            </zeebe:ioMapping>
+            <zeebe:calledElement processId="SearchAgent" propagateAllChildVariables="false" />
+          </bpmn:extensionElements>
+          <bpmn:incoming>Flow_1sp67o9</bpmn:incoming>
+          <bpmn:outgoing>Flow_0u7bbex</bpmn:outgoing>
+        </bpmn:callActivity>
+        <bpmn:intermediateThrowEvent id="Event_09bcxxs" name="More input needed">
+          <bpmn:incoming>Flow_0hjra2c</bpmn:incoming>
+          <bpmn:escalationEventDefinition id="EscalationEventDefinition_18k2kbm" escalationRef="Escalation_2s4sccs" />
+        </bpmn:intermediateThrowEvent>
+        <bpmn:startEvent id="Event_1nftt3l" name="search agents process started">
+          <bpmn:outgoing>Flow_1ii72el</bpmn:outgoing>
+        </bpmn:startEvent>
+        <bpmn:inclusiveGateway id="Gateway_0vixnk6" name="Which agents are used?" default="Flow_0hjra2c">
+          <bpmn:incoming>Flow_1ii72el</bpmn:incoming>
+          <bpmn:outgoing>Flow_0m3946w</bpmn:outgoing>
+          <bpmn:outgoing>Flow_0gjxk47</bpmn:outgoing>
+          <bpmn:outgoing>Flow_1sp67o9</bpmn:outgoing>
+          <bpmn:outgoing>Flow_0hjra2c</bpmn:outgoing>
+        </bpmn:inclusiveGateway>
+      </bpmn:subProcess>
+      <bpmn:serviceTask id="Activity_1euydfr" name="Travel Agent (A)" zeebe:modelerTemplate="io.camunda.connectors.aws.bedrock.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iODBweCIgaGVpZ2h0PSI4MHB4IiB2aWV3Qm94PSIwIDAgODAgODAiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+CiAgICA8dGl0bGU+SWNvbi1BcmNoaXRlY3R1cmUvNjQvQXJjaF9BbWF6b24tQmVkcm9ja182NDwvdGl0bGU+CiAgICA8ZyBpZD0iSWNvbi1BcmNoaXRlY3R1cmUvNjQvQXJjaF9BbWF6b24tQmVkcm9ja182NCIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+CiAgICAgICAgPGcgaWQ9Ikljb24tQXJjaGl0ZWN0dXJlLUJHLzY0L01hY2hpbmUtTGVhcm5pbmciIGZpbGw9IiM5OTY5ZjciPgogICAgICAgICAgICA8cmVjdCBpZD0iUmVjdGFuZ2xlIiB4PSIwIiB5PSIwIiB3aWR0aD0iODAiIGhlaWdodD0iODAiPjwvcmVjdD4KICAgICAgICA8L2c+CiAgICAgICAgPGcgaWQ9Ikljb24tU2VydmljZS82NC9BbWF6b24tQmVkcm9ja182NCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTIuMDAwMDAwLCAxMi4wMDAwMDApIiBmaWxsPSIjRkZGRkZGIj4KICAgICAgICAgICAgPHBhdGggZD0iTTUyLDI2Ljk5OTg5MTggQzUwLjg5NywyNi45OTk4OTE4IDUwLDI2LjEwMjg5MTggNTAsMjQuOTk5ODkxOCBDNTAsMjMuODk2ODkxOCA1MC44OTcsMjIuOTk5ODkxOCA1MiwyMi45OTk4OTE4IEM1My4xMDMsMjIuOTk5ODkxOCA1NCwyMy44OTY4OTE4IDU0LDI0Ljk5OTg5MTggQzU0LDI2LjEwMjg5MTggNTMuMTAzLDI2Ljk5OTg5MTggNTIsMjYuOTk5ODkxOCBMNTIsMjYuOTk5ODkxOCBaIE0yMC4xMTMsNTMuOTA3ODkxOCBMMTYuODY1LDUyLjAxMzg5MTggTDIzLjUzLDQ3Ljg0Nzg5MTggTDIyLjQ3LDQ2LjE1MTg5MTggTDE0LjkxMyw1MC44NzQ4OTE4IEw5LDQ3LjQyNTg5MTggTDksMzguNTM0ODkxOCBMMTQuNTU1LDM0LjgzMTg5MTggTDEzLjQ0NSwzMy4xNjc4OTE4IEw3Ljk1OSwzNi44MjQ4OTE4IEwyLDMzLjQxOTg5MTggTDIsMjguNTc5ODkxOCBMOC40OTYsMjQuODY3ODkxOCBMNy41MDQsMjMuMTMxODkxOCBMMiwyNi4yNzY4OTE4IEwyLDIyLjU3OTg5MTggTDgsMTkuMTUxODkxOCBMMTQsMjIuNTc5ODkxOCBMMTQsMjYuNDMzODkxOCBMOS40ODUsMjkuMTQyODkxOCBMMTAuNTE1LDMwLjg1Njg5MTggTDE1LDI4LjE2NTg5MTggTDE5LjQ4NSwzMC44NTY4OTE4IEwyMC41MTUsMjkuMTQyODkxOCBMMTYsMjYuNDMzODkxOCBMMTYsMjIuNTM0ODkxOCBMMjEuNTU1LDE4LjgzMTg5MTggQzIxLjgzMywxOC42NDU4OTE4IDIyLDE4LjMzMzg5MTggMjIsMTcuOTk5ODkxOCBMMjIsMTAuOTk5ODkxOCBMMjAsMTAuOTk5ODkxOCBMMjAsMTcuNDY0ODkxOCBMMTQuOTU5LDIwLjgyNDg5MTggTDksMTcuNDE5ODkxOCBMOSw4LjU3Mzg5MTgxIEwxNCw1LjY1Nzg5MTgxIEwxNCwxMy45OTk4OTE4IEwxNiwxMy45OTk4OTE4IEwxNiw0LjQ5MDg5MTgxIEwyMC4xMTMsMi4wOTE4OTE4MSBMMjgsNC43MjA4OTE4MSBMMjgsMzMuNDMzODkxOCBMMTMuNDg1LDQyLjE0Mjg5MTggTDE0LjUxNSw0My44NTY4OTE4IEwyOCwzNS43NjU4OTE4IEwyOCw1MS4yNzg4OTE4IEwyMC4xMTMsNTMuOTA3ODkxOCBaIE01MCwzNy45OTk4OTE4IEM1MCwzOS4xMDI4OTE4IDQ5LjEwMywzOS45OTk4OTE4IDQ4LDM5Ljk5OTg5MTggQzQ2Ljg5NywzOS45OTk4OTE4IDQ2LDM5LjEwMjg5MTggNDYsMzcuOTk5ODkxOCBDNDYsMzYuODk2ODkxOCA0Ni44OTcsMzUuOTk5ODkxOCA0OCwzNS45OTk4OTE4IEM0OS4xMDMsMzUuOTk5ODkxOCA1MCwzNi44OTY4OTE4IDUwLDM3Ljk5OTg5MTggTDUwLDM3Ljk5OTg5MTggWiBNNDAsNDcuOTk5ODkxOCBDNDAsNDkuMTAyODkxOCAzOS4xMDMsNDkuOTk5ODkxOCAzOCw0OS45OTk4OTE4IEMzNi44OTcsNDkuOTk5ODkxOCAzNiw0OS4xMDI4OTE4IDM2LDQ3Ljk5OTg5MTggQzM2LDQ2Ljg5Njg5MTggMzYuODk3LDQ1Ljk5OTg5MTggMzgsNDUuOTk5ODkxOCBDMzkuMTAzLDQ1Ljk5OTg5MTggNDAsNDYuODk2ODkxOCA0MCw0Ny45OTk4OTE4IEw0MCw0Ny45OTk4OTE4IFogTTM5LDcuOTk5ODkxODEgQzM5LDYuODk2ODkxODEgMzkuODk3LDUuOTk5ODkxODEgNDEsNS45OTk4OTE4MSBDNDIuMTAzLDUuOTk5ODkxODEgNDMsNi44OTY4OTE4MSA0Myw3Ljk5OTg5MTgxIEM0Myw5LjEwMjg5MTgxIDQyLjEwMyw5Ljk5OTg5MTgxIDQxLDkuOTk5ODkxODEgQzM5Ljg5Nyw5Ljk5OTg5MTgxIDM5LDkuMTAyODkxODEgMzksNy45OTk4OTE4MSBMMzksNy45OTk4OTE4MSBaIE01MiwyMC45OTk4OTE4IEM1MC4xNDEsMjAuOTk5ODkxOCA0OC41ODksMjIuMjc5ODkxOCA0OC4xNDIsMjMuOTk5ODkxOCBMMzAsMjMuOTk5ODkxOCBMMzAsMTguOTk5ODkxOCBMNDEsMTguOTk5ODkxOCBDNDEuNTUzLDE4Ljk5OTg5MTggNDIsMTguNTUxODkxOCA0MiwxNy45OTk4OTE4IEw0MiwxMS44NTc4OTE4IEM0My43MiwxMS40MTA4OTE4IDQ1LDkuODU3ODkxODEgNDUsNy45OTk4OTE4MSBDNDUsNS43OTM4OTE4MSA0My4yMDYsMy45OTk4OTE4MSA0MSwzLjk5OTg5MTgxIEMzOC43OTQsMy45OTk4OTE4MSAzNyw1Ljc5Mzg5MTgxIDM3LDcuOTk5ODkxODEgQzM3LDkuODU3ODkxODEgMzguMjgsMTEuNDEwODkxOCA0MCwxMS44NTc4OTE4IEw0MCwxNi45OTk4OTE4IEwzMCwxNi45OTk4OTE4IEwzMCwzLjk5OTg5MTgxIEMzMCwzLjU2ODg5MTgxIDI5LjcyNSwzLjE4Nzg5MTgxIDI5LjMxNiwzLjA1MDg5MTgxIEwyMC4zMTYsMC4wNTA4OTE4MTEgQzIwLjA0MiwtMC4wMzkxMDgxODkgMTkuNzQ0LC0wLjAwOTEwODE4OTA0IDE5LjQ5NiwwLjEzNTg5MTgxMSBMNy40OTYsNy4xMzU4OTE4MSBDNy4xODgsNy4zMTQ4OTE4MSA3LDcuNjQ0ODkxODEgNyw3Ljk5OTg5MTgxIEw3LDE3LjQxOTg5MTggTDAuNTA0LDIxLjEzMTg5MTggQzAuMTkyLDIxLjMwOTg5MTggMCwyMS42NDA4OTE4IDAsMjEuOTk5ODkxOCBMMCwzMy45OTk4OTE4IEMwLDM0LjM1ODg5MTggMC4xOTIsMzQuNjg5ODkxOCAwLjUwNCwzNC44Njc4OTE4IEw3LDM4LjU3OTg5MTggTDcsNDcuOTk5ODkxOCBDNyw0OC4zNTQ4OTE4IDcuMTg4LDQ4LjY4NDg5MTggNy40OTYsNDguODYzODkxOCBMMTkuNDk2LDU1Ljg2Mzg5MTggQzE5LjY1LDU1Ljk1Mzg5MTggMTkuODI1LDU1Ljk5OTg5MTggMjAsNTUuOTk5ODkxOCBDMjAuMTA2LDU1Ljk5OTg5MTggMjAuMjEzLDU1Ljk4Mjg5MTggMjAuMzE2LDU1Ljk0ODg5MTggTDI5LjMxNiw1Mi45NDg4OTE4IEMyOS43MjUsNTIuODExODkxOCAzMCw1Mi40MzA4OTE4IDMwLDUxLjk5OTg5MTggTDMwLDM5Ljk5OTg5MTggTDM3LDM5Ljk5OTg5MTggTDM3LDQ0LjE0MTg5MTggQzM1LjI4LDQ0LjU4ODg5MTggMzQsNDYuMTQxODkxOCAzNCw0Ny45OTk4OTE4IEMzNCw1MC4yMDU4OTE4IDM1Ljc5NCw1MS45OTk4OTE4IDM4LDUxLjk5OTg5MTggQzQwLjIwNiw1MS45OTk4OTE4IDQyLDUwLjIwNTg5MTggNDIsNDcuOTk5ODkxOCBDNDIsNDYuMTQxODkxOCA0MC43Miw0NC41ODg4OTE4IDM5LDQ0LjE0MTg5MTggTDM5LDM4Ljk5OTg5MTggQzM5LDM4LjQ0Nzg5MTggMzguNTUzLDM3Ljk5OTg5MTggMzgsMzcuOTk5ODkxOCBMMzAsMzcuOTk5ODkxOCBMMzAsMzIuOTk5ODkxOCBMNDIuNSwzMi45OTk4OTE4IEw0NC42MzgsMzUuODQ5ODkxOCBDNDQuMjM5LDM2LjQ3MTg5MTggNDQsMzcuMjA2ODkxOCA0NCwzNy45OTk4OTE4IEM0NCw0MC4yMDU4OTE4IDQ1Ljc5NCw0MS45OTk4OTE4IDQ4LDQxLjk5OTg5MTggQzUwLjIwNiw0MS45OTk4OTE4IDUyLDQwLjIwNTg5MTggNTIsMzcuOTk5ODkxOCBDNTIsMzUuNzkzODkxOCA1MC4yMDYsMzMuOTk5ODkxOCA0OCwzMy45OTk4OTE4IEM0Ny4zMTYsMzMuOTk5ODkxOCA0Ni42ODIsMzQuMTg3ODkxOCA0Ni4xMTksMzQuNDkxODkxOCBMNDMuOCwzMS4zOTk4OTE4IEM0My42MTEsMzEuMTQ3ODkxOCA0My4zMTQsMzAuOTk5ODkxOCA0MywzMC45OTk4OTE4IEwzMCwzMC45OTk4OTE4IEwzMCwyNS45OTk4OTE4IEw0OC4xNDIsMjUuOTk5ODkxOCBDNDguNTg5LDI3LjcxOTg5MTggNTAuMTQxLDI4Ljk5OTg5MTggNTIsMjguOTk5ODkxOCBDNTQuMjA2LDI4Ljk5OTg5MTggNTYsMjcuMjA1ODkxOCA1NiwyNC45OTk4OTE4IEM1NiwyMi43OTM4OTE4IDU0LjIwNiwyMC45OTk4OTE4IDUyLDIwLjk5OTg5MTggTDUyLDIwLjk5OTg5MTggWiIgaWQ9IkZpbGwtMSI+PC9wYXRoPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+">
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="io.camunda:aws-bedrock:1" retries="3" />
+          <zeebe:ioMapping>
+            <zeebe:input source="credentials" target="authentication.type" />
+            <zeebe:input source="=&#34;{{secrets.AI_AWS_BEDROCK_ACCESS_KEY}}&#34;" target="authentication.accessKey" />
+            <zeebe:input source="=&#34;{{secrets.AI_AWS_BEDROCK_SECRET_KEY}}&#34;" target="authentication.secretKey" />
+            <zeebe:input source="us-east-1" target="configuration.region" />
+            <zeebe:input source="invokeModel" target="action" />
+            <zeebe:input source="anthropic.claude-3-5-sonnet-20240620-v1:0" target="data.modelId" />
+            <zeebe:input source="=&#10;&#10;&#10;{&#10;    &#34;anthropic_version&#34;: &#34;bedrock-2023-05-31&#34;,&#10;    &#34;max_tokens&#34;: 8192,&#10;    &#34;system&#34;: &#34;You are a proactive, intelligent travel agent:\n- **Primary Goal**: Act as a routing agent for the travel request, invoking email, flight, car, hotel agents for assembling trips\n- **Secondary Goal**: Ensure seamless, customized travel by deriving preferences from context\n- **Context**: Use context only to fill gaps in logic, not as a travel request.\n- **Chain of Reasoning**: Prioritize deduction, followed by inference, then educated guessing based on available information\n- **For confusing, impossible, or unguessable queries**: Use the &#39;ask_user&#39; tool for clarification for all missing information, as a last resort only\n\nThinking, step by step, before you execute your tools, you think using the template `&#60;thinking&#62;&#60;context&#62;&#60;/context&#62;&#60;reflection&#62;&#60;/reflection&#62;&#60;/thinking&#62;` using the following steps:\n- **context**: The limits of the travel request, ie given context and most important the travel request, are the key expectations and constraints. Priorities are first to honor constraints second to fulfill expectations and third to fill gaps creatively. Summarise the context, go step by step:\n1. Constraints\n2. Expectations\n3. gaps to fill with creative decisions\n- **reflection**: Adhering to constraints and expectations. For each step try - first deduce, if not possible infer, if not possible make a guess to arrive at a reasonable choice. Concisely think, use terse language, go step by step:\n1. Pleasure or business\n2. Number of passengers\n3. Class\n4. Origin\n5. Timing, ie departure date, return date, duration\n6. Destination:\n    a. Three canidate destinations - type of trip, activity, interest, distance, budget, etc. - make them different from each other but stay within constrains\n    b. Compare them based on constrains and expectations\n    c. Pick best fit\n&#34;,&#10;    &#34;messages&#34;: [&#10;        {&#10;            &#34;role&#34;: &#34;user&#34;,&#10;            &#34;content&#34;:  &#34;# Guidance\n\n1. Adhere to the user&#39;s travel request&#39;s details as much as possible\n\n2. Attempt to infer missing details, use typical travel scenarios and make creative decisions based on the context provided.\n\n3. If a query is incomplete unrelated to a travel request or gives not even the slightest hint of a travel request, use ask_user tool to get more information.\n\n4. Once all required details are gathered or inferred, proceed with the booking.\n\n&#34; + (if correctionForm!=null then (&#34;5. Note this is a second attempt on the booking with the first failing or being unsatisfactory. Avoid repeating them. The previous booking was:\n&#34; + string(filteredOptions) + &#34;\nAnd the user&#39;s feedback was:\n&#34; + correctionForm) + &#34;\n\n&#34; else &#34;&#34;) + &#34; \n\n# Context\n\n## Current date and time\n\n&#34; + string(now()) + &#34;\n\n## About User\n\n&#34; + aboutUser+ &#34;\n\n# Travel request\n\nUser&#39;s travel request:\n\n---\n&#34; + travelRequest + &#34;\n---\n\nStart with the step by step `&#60;thinking&#62;&#60;context&#62;&#60;/context&#62;&#60;reflection&#62;&#60;/reflection&#62;&#60;/thinking&#62;` then call all the agents - email, flight, car, and hotel - together in parallel using the thinking information unless one is explictily excluded.&#34;&#10;        }&#10;    ],&#10;    &#34;tools&#34;: [&#10;        {&#10;            &#34;name&#34;: &#34;email_agent&#34;,&#10;            &#34;description&#34;: &#34;This agent sends an email to the user explaining the thinking.&#34;,&#10;            &#34;input_schema&#34;: {&#10;                &#34;type&#34;: &#34;object&#34;,&#10;                &#34;properties&#34;: {&#10;                    &#34;context&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;A summary of the thinking &#62; context stage covering the facts.&#34;&#10;                    },&#10;                    &#34;reflection&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;A summary of the thinking &#62; reflection stage covering the considered options, which one was chosen, and why.&#34;&#10;                    }&#10;                },&#10;                &#34;required&#34;: [&#34;context&#34;, &#34;reflection&#34;]&#10;            }&#10;        },&#10;        {&#10;            &#34;name&#34;: &#34;flight_agent&#34;,&#10;            &#34;description&#34;: &#34;This agent is used to query flight APIs. Infer missing information.&#34;,&#10;            &#34;input_schema&#34;: {&#10;                &#34;type&#34;: &#34;object&#34;,&#10;                &#34;properties&#34;: {&#10;                    &#34;outbound_date&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The date the user wants to depart. This must follow the ISO format YYYY-MM-DD. If not provided, suggest an optimal date based on the season or request theme (e.g., summer vacation).&#34;&#10;                    },&#10;                    &#34;inbound_date&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The date the user wants to return. Must also be in YYYY-MM-DD format. Infer based on the typical duration of stay for the trip type (e.g., one-week stay for a vacation).&#34;&#10;                    },&#10;                    &#34;origin&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The IATA code for the departure airport. Infer based on the user&#39;s location if not explicitly provided.&#34;&#10;                    },&#10;                    &#34;destination&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The IATA code for the destination airport. Suggest popular destinations based on the inferred theme (e.g., sunny getaways like Hawaii or Greece for a summer trip).&#34;&#10;                    },&#10;                    &#34;num_passengers&#34;: {&#10;                        &#34;type&#34;: &#34;integer&#34;,&#10;                        &#34;description&#34;: &#34;The number of passengers who will be on the flight. If not stated, assume 1 and confirm if more are likely.&#34;&#10;                    },&#10;                    &#34;class&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The class of service for the flight. The available options are economy, premium economy, business, and first class. If unclear, suggest based on budget or inferred preferences.&#34;&#10;                    }&#10;                },&#10;                &#34;required&#34;: [&#10;                    &#34;outbound_date&#34;,&#10;                    &#34;inbound_date&#34;,&#10;                    &#34;origin&#34;,&#10;                    &#34;destination&#34;,&#10;                    &#34;class&#34;,&#10;                    &#34;num_passengers&#34;&#10;                ]&#10;            }&#10;        },&#10;        {&#10;            &#34;name&#34;: &#34;hotel_agent&#34;,&#10;            &#34;description&#34;: &#34;This agent queries hotel and apartment accommodation APIs. Infer missing information.&#34;,&#10;            &#34;input_schema&#34;: {&#10;                &#34;type&#34;: &#34;object&#34;,&#10;                &#34;properties&#34;: {&#10;                    &#34;checkin_date&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The user&#39;s desired check-in date, in YYYY-MM-DD format. If unclear, infer based on the trip&#39;s departure date.&#34;&#10;                    },&#10;                    &#34;checkout_date&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The user&#39;s desired check-out date, also in YYYY-MM-DD format. Suggest a typical stay duration based on the trip type (e.g., 5-7 days for a vacation).&#34;&#10;                    },&#10;                    &#34;destination&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The city or area the user intends to stay in. Infer based on the overall trip theme.&#34;&#10;                    },&#10;                    &#34;class&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The accommodation class, which could be budget, standard, or luxury. Suggest based on the user&#39;s inferred preferences or budget.&#34;&#10;                    },&#10;                    &#34;room_type&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The type of room required. Infer based on the number of guests or suggest options.&#34;&#10;                    },&#10;                    &#34;guests&#34;: {&#10;                        &#34;type&#34;: &#34;integer&#34;,&#10;                        &#34;description&#34;: &#34;The number of guests staying in the room. If unclear, assume 1 and suggest based on context.&#34;&#10;                    },&#10;                    &#34;num_rooms&#34;: {&#10;                        &#34;type&#34;: &#34;integer&#34;,&#10;                        &#34;description&#34;: &#34;The number of rooms required. Defaults to 1 unless otherwise specified.&#34;&#10;                    }&#10;                },&#10;                &#34;required&#34;: [&#10;                    &#34;checkin_date&#34;,&#10;                    &#34;checkout_date&#34;,&#10;                    &#34;destination&#34;,&#10;                    &#34;guests&#34;,&#10;                    &#34;num_rooms&#34;&#10;                ]&#10;            }&#10;        },&#10;        {&#10;            &#34;name&#34;: &#34;car_agent&#34;,&#10;            &#34;description&#34;: &#34;This agent queries car rental APIs. Infer missing information.&#34;,&#10;            &#34;input_schema&#34;: {&#10;                &#34;type&#34;: &#34;object&#34;,&#10;                &#34;properties&#34;: {&#10;                    &#34;pickup_date&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The desired car pickup date in YYYY-MM-DD format. Infer based on check-in dates or flight arrivals.&#34;&#10;                    },&#10;                    &#34;dropoff_date&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The date the car will be returned, in YYYY-MM-DD format. Infer based on trip length.&#34;&#10;                    },&#10;                    &#34;pickup_location&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The location (typically an airport) where the user will collect the car. Infer based on the trip&#39;s arrival point.&#34;&#10;                    },&#10;                    &#34;dropoff_location&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The location where the car will be returned. Infer based on the trip&#39;s departure point.&#34;&#10;                    },&#10;                    &#34;car_type&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The preferred type of car. The available options are economy, standard, and luxury. Infer based on the user&#39;s inferred budget or trip type.&#34;&#10;                    },&#10;                    &#34;acriss_code&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The four-character ACRISS code that defines the car&#39;s category, class, and transmission.&#34;&#10;                    }&#10;                },&#10;                &#34;required&#34;: [&#10;                    &#34;pickup_date&#34;,&#10;                    &#34;dropoff_date&#34;,&#10;                    &#34;pickup_location&#34;,&#10;                    &#34;dropoff_location&#34;,&#10;                    &#34;car_type&#34;&#10;                ]&#10;            }&#10;        },&#10;        {&#10;            &#34;name&#34;: &#34;ask_user&#34;,&#10;            &#34;description&#34;: &#34;This tool is used when the system requires clarification from the user, but it should offer suggestions to minimize back-and-forth. When unclear, suggest options or infer based on context. If there is any uncertainty in planning you must call this function to ask the user.&#34;,&#10;            &#34;input_schema&#34;: {&#10;                &#34;type&#34;: &#34;object&#34;,&#10;                &#34;properties&#34;: {&#10;                    &#34;message&#34;: {&#10;                        &#34;type&#34;: &#34;string&#34;,&#10;                        &#34;description&#34;: &#34;The question to ask the user. It should be open-ended, but provide contextually appropriate options to reduce ambiguity and clarify the user&#39;s preferences.&#34;&#10;                    }&#10;                },&#10;                &#34;required&#34;: [&#34;message&#34;]&#10;            }&#10;        }&#10;    ],&#10;    &#34;tool_choice&#34;: {&#34;type&#34;: &#34;auto&#34;}&#10;}" target="data.payload" />
+          </zeebe:ioMapping>
+          <zeebe:taskHeaders>
+            <zeebe:header key="resultExpression" value="={&#10;  &#34;email_agent&#34;: if (count(body.content[name = &#34;email_agent&#34;]) &#62; 0) then (body.content[name = &#34;email_agent&#34;][1].input) else null,&#10;&#10;&#34;agent_context&#34;: if (count(body.content[name = &#34;email_agent&#34;]) &#62; 0) then (body.content[name = &#34;email_agent&#34;][1].input.context) else null,&#10;  &#10;  &#34;agent_reflection&#34;: if (count(body.content[name = &#34;email_agent&#34;]) &#62; 0) then (body.content[name = &#34;email_agent&#34;][1].input.reflection) else null,&#10;  &#10;  &#34;flight_agent&#34;: if (count(body.content[name = &#34;flight_agent&#34;]) &#62; 0) then (body.content[name = &#34;flight_agent&#34;][1].input) else null,&#10;  &#34;hotel_agent&#34;: if (count(body.content[name = &#34;hotel_agent&#34;]) &#62; 0) then (body.content[name = &#34;hotel_agent&#34;][1].input) else null,&#10;  &#34;car_agent&#34;: if (count(body.content[name = &#34;car_agent&#34;]) &#62; 0) then (body.content[name = &#34;car_agent&#34;][1].input) else null,&#10;  &#34;ask_user&#34;: if (count(body.content[name = &#34;ask_user&#34;]) &#62; 0) then (body.content[name = &#34;ask_user&#34;][1].input) else null,&#10;  &#34;complete_response&#34;: body&#10;}" />
+            <zeebe:header key="retryBackoff" value="PT0S" />
+          </zeebe:taskHeaders>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_0k4qsoh</bpmn:incoming>
+        <bpmn:outgoing>Flow_15ycwt5</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:serviceTask id="Activity_1vz26di" name="Travel Agent (B)" zeebe:modelerTemplate="io.camunda.connectors.aws.bedrock.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iODBweCIgaGVpZ2h0PSI4MHB4IiB2aWV3Qm94PSIwIDAgODAgODAiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+CiAgICA8dGl0bGU+SWNvbi1BcmNoaXRlY3R1cmUvNjQvQXJjaF9BbWF6b24tQmVkcm9ja182NDwvdGl0bGU+CiAgICA8ZyBpZD0iSWNvbi1BcmNoaXRlY3R1cmUvNjQvQXJjaF9BbWF6b24tQmVkcm9ja182NCIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+CiAgICAgICAgPGcgaWQ9Ikljb24tQXJjaGl0ZWN0dXJlLUJHLzY0L01hY2hpbmUtTGVhcm5pbmciIGZpbGw9IiM5OTY5ZjciPgogICAgICAgICAgICA8cmVjdCBpZD0iUmVjdGFuZ2xlIiB4PSIwIiB5PSIwIiB3aWR0aD0iODAiIGhlaWdodD0iODAiPjwvcmVjdD4KICAgICAgICA8L2c+CiAgICAgICAgPGcgaWQ9Ikljb24tU2VydmljZS82NC9BbWF6b24tQmVkcm9ja182NCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTIuMDAwMDAwLCAxMi4wMDAwMDApIiBmaWxsPSIjRkZGRkZGIj4KICAgICAgICAgICAgPHBhdGggZD0iTTUyLDI2Ljk5OTg5MTggQzUwLjg5NywyNi45OTk4OTE4IDUwLDI2LjEwMjg5MTggNTAsMjQuOTk5ODkxOCBDNTAsMjMuODk2ODkxOCA1MC44OTcsMjIuOTk5ODkxOCA1MiwyMi45OTk4OTE4IEM1My4xMDMsMjIuOTk5ODkxOCA1NCwyMy44OTY4OTE4IDU0LDI0Ljk5OTg5MTggQzU0LDI2LjEwMjg5MTggNTMuMTAzLDI2Ljk5OTg5MTggNTIsMjYuOTk5ODkxOCBMNTIsMjYuOTk5ODkxOCBaIE0yMC4xMTMsNTMuOTA3ODkxOCBMMTYuODY1LDUyLjAxMzg5MTggTDIzLjUzLDQ3Ljg0Nzg5MTggTDIyLjQ3LDQ2LjE1MTg5MTggTDE0LjkxMyw1MC44NzQ4OTE4IEw5LDQ3LjQyNTg5MTggTDksMzguNTM0ODkxOCBMMTQuNTU1LDM0LjgzMTg5MTggTDEzLjQ0NSwzMy4xNjc4OTE4IEw3Ljk1OSwzNi44MjQ4OTE4IEwyLDMzLjQxOTg5MTggTDIsMjguNTc5ODkxOCBMOC40OTYsMjQuODY3ODkxOCBMNy41MDQsMjMuMTMxODkxOCBMMiwyNi4yNzY4OTE4IEwyLDIyLjU3OTg5MTggTDgsMTkuMTUxODkxOCBMMTQsMjIuNTc5ODkxOCBMMTQsMjYuNDMzODkxOCBMOS40ODUsMjkuMTQyODkxOCBMMTAuNTE1LDMwLjg1Njg5MTggTDE1LDI4LjE2NTg5MTggTDE5LjQ4NSwzMC44NTY4OTE4IEwyMC41MTUsMjkuMTQyODkxOCBMMTYsMjYuNDMzODkxOCBMMTYsMjIuNTM0ODkxOCBMMjEuNTU1LDE4LjgzMTg5MTggQzIxLjgzMywxOC42NDU4OTE4IDIyLDE4LjMzMzg5MTggMjIsMTcuOTk5ODkxOCBMMjIsMTAuOTk5ODkxOCBMMjAsMTAuOTk5ODkxOCBMMjAsMTcuNDY0ODkxOCBMMTQuOTU5LDIwLjgyNDg5MTggTDksMTcuNDE5ODkxOCBMOSw4LjU3Mzg5MTgxIEwxNCw1LjY1Nzg5MTgxIEwxNCwxMy45OTk4OTE4IEwxNiwxMy45OTk4OTE4IEwxNiw0LjQ5MDg5MTgxIEwyMC4xMTMsMi4wOTE4OTE4MSBMMjgsNC43MjA4OTE4MSBMMjgsMzMuNDMzODkxOCBMMTMuNDg1LDQyLjE0Mjg5MTggTDE0LjUxNSw0My44NTY4OTE4IEwyOCwzNS43NjU4OTE4IEwyOCw1MS4yNzg4OTE4IEwyMC4xMTMsNTMuOTA3ODkxOCBaIE01MCwzNy45OTk4OTE4IEM1MCwzOS4xMDI4OTE4IDQ5LjEwMywzOS45OTk4OTE4IDQ4LDM5Ljk5OTg5MTggQzQ2Ljg5NywzOS45OTk4OTE4IDQ2LDM5LjEwMjg5MTggNDYsMzcuOTk5ODkxOCBDNDYsMzYuODk2ODkxOCA0Ni44OTcsMzUuOTk5ODkxOCA0OCwzNS45OTk4OTE4IEM0OS4xMDMsMzUuOTk5ODkxOCA1MCwzNi44OTY4OTE4IDUwLDM3Ljk5OTg5MTggTDUwLDM3Ljk5OTg5MTggWiBNNDAsNDcuOTk5ODkxOCBDNDAsNDkuMTAyODkxOCAzOS4xMDMsNDkuOTk5ODkxOCAzOCw0OS45OTk4OTE4IEMzNi44OTcsNDkuOTk5ODkxOCAzNiw0OS4xMDI4OTE4IDM2LDQ3Ljk5OTg5MTggQzM2LDQ2Ljg5Njg5MTggMzYuODk3LDQ1Ljk5OTg5MTggMzgsNDUuOTk5ODkxOCBDMzkuMTAzLDQ1Ljk5OTg5MTggNDAsNDYuODk2ODkxOCA0MCw0Ny45OTk4OTE4IEw0MCw0Ny45OTk4OTE4IFogTTM5LDcuOTk5ODkxODEgQzM5LDYuODk2ODkxODEgMzkuODk3LDUuOTk5ODkxODEgNDEsNS45OTk4OTE4MSBDNDIuMTAzLDUuOTk5ODkxODEgNDMsNi44OTY4OTE4MSA0Myw3Ljk5OTg5MTgxIEM0Myw5LjEwMjg5MTgxIDQyLjEwMyw5Ljk5OTg5MTgxIDQxLDkuOTk5ODkxODEgQzM5Ljg5Nyw5Ljk5OTg5MTgxIDM5LDkuMTAyODkxODEgMzksNy45OTk4OTE4MSBMMzksNy45OTk4OTE4MSBaIE01MiwyMC45OTk4OTE4IEM1MC4xNDEsMjAuOTk5ODkxOCA0OC41ODksMjIuMjc5ODkxOCA0OC4xNDIsMjMuOTk5ODkxOCBMMzAsMjMuOTk5ODkxOCBMMzAsMTguOTk5ODkxOCBMNDEsMTguOTk5ODkxOCBDNDEuNTUzLDE4Ljk5OTg5MTggNDIsMTguNTUxODkxOCA0MiwxNy45OTk4OTE4IEw0MiwxMS44NTc4OTE4IEM0My43MiwxMS40MTA4OTE4IDQ1LDkuODU3ODkxODEgNDUsNy45OTk4OTE4MSBDNDUsNS43OTM4OTE4MSA0My4yMDYsMy45OTk4OTE4MSA0MSwzLjk5OTg5MTgxIEMzOC43OTQsMy45OTk4OTE4MSAzNyw1Ljc5Mzg5MTgxIDM3LDcuOTk5ODkxODEgQzM3LDkuODU3ODkxODEgMzguMjgsMTEuNDEwODkxOCA0MCwxMS44NTc4OTE4IEw0MCwxNi45OTk4OTE4IEwzMCwxNi45OTk4OTE4IEwzMCwzLjk5OTg5MTgxIEMzMCwzLjU2ODg5MTgxIDI5LjcyNSwzLjE4Nzg5MTgxIDI5LjMxNiwzLjA1MDg5MTgxIEwyMC4zMTYsMC4wNTA4OTE4MTEgQzIwLjA0MiwtMC4wMzkxMDgxODkgMTkuNzQ0LC0wLjAwOTEwODE4OTA0IDE5LjQ5NiwwLjEzNTg5MTgxMSBMNy40OTYsNy4xMzU4OTE4MSBDNy4xODgsNy4zMTQ4OTE4MSA3LDcuNjQ0ODkxODEgNyw3Ljk5OTg5MTgxIEw3LDE3LjQxOTg5MTggTDAuNTA0LDIxLjEzMTg5MTggQzAuMTkyLDIxLjMwOTg5MTggMCwyMS42NDA4OTE4IDAsMjEuOTk5ODkxOCBMMCwzMy45OTk4OTE4IEMwLDM0LjM1ODg5MTggMC4xOTIsMzQuNjg5ODkxOCAwLjUwNCwzNC44Njc4OTE4IEw3LDM4LjU3OTg5MTggTDcsNDcuOTk5ODkxOCBDNyw0OC4zNTQ4OTE4IDcuMTg4LDQ4LjY4NDg5MTggNy40OTYsNDguODYzODkxOCBMMTkuNDk2LDU1Ljg2Mzg5MTggQzE5LjY1LDU1Ljk1Mzg5MTggMTkuODI1LDU1Ljk5OTg5MTggMjAsNTUuOTk5ODkxOCBDMjAuMTA2LDU1Ljk5OTg5MTggMjAuMjEzLDU1Ljk4Mjg5MTggMjAuMzE2LDU1Ljk0ODg5MTggTDI5LjMxNiw1Mi45NDg4OTE4IEMyOS43MjUsNTIuODExODkxOCAzMCw1Mi40MzA4OTE4IDMwLDUxLjk5OTg5MTggTDMwLDM5Ljk5OTg5MTggTDM3LDM5Ljk5OTg5MTggTDM3LDQ0LjE0MTg5MTggQzM1LjI4LDQ0LjU4ODg5MTggMzQsNDYuMTQxODkxOCAzNCw0Ny45OTk4OTE4IEMzNCw1MC4yMDU4OTE4IDM1Ljc5NCw1MS45OTk4OTE4IDM4LDUxLjk5OTg5MTggQzQwLjIwNiw1MS45OTk4OTE4IDQyLDUwLjIwNTg5MTggNDIsNDcuOTk5ODkxOCBDNDIsNDYuMTQxODkxOCA0MC43Miw0NC41ODg4OTE4IDM5LDQ0LjE0MTg5MTggTDM5LDM4Ljk5OTg5MTggQzM5LDM4LjQ0Nzg5MTggMzguNTUzLDM3Ljk5OTg5MTggMzgsMzcuOTk5ODkxOCBMMzAsMzcuOTk5ODkxOCBMMzAsMzIuOTk5ODkxOCBMNDIuNSwzMi45OTk4OTE4IEw0NC42MzgsMzUuODQ5ODkxOCBDNDQuMjM5LDM2LjQ3MTg5MTggNDQsMzcuMjA2ODkxOCA0NCwzNy45OTk4OTE4IEM0NCw0MC4yMDU4OTE4IDQ1Ljc5NCw0MS45OTk4OTE4IDQ4LDQxLjk5OTg5MTggQzUwLjIwNiw0MS45OTk4OTE4IDUyLDQwLjIwNTg5MTggNTIsMzcuOTk5ODkxOCBDNTIsMzUuNzkzODkxOCA1MC4yMDYsMzMuOTk5ODkxOCA0OCwzMy45OTk4OTE4IEM0Ny4zMTYsMzMuOTk5ODkxOCA0Ni42ODIsMzQuMTg3ODkxOCA0Ni4xMTksMzQuNDkxODkxOCBMNDMuOCwzMS4zOTk4OTE4IEM0My42MTEsMzEuMTQ3ODkxOCA0My4zMTQsMzAuOTk5ODkxOCA0MywzMC45OTk4OTE4IEwzMCwzMC45OTk4OTE4IEwzMCwyNS45OTk4OTE4IEw0OC4xNDIsMjUuOTk5ODkxOCBDNDguNTg5LDI3LjcxOTg5MTggNTAuMTQxLDI4Ljk5OTg5MTggNTIsMjguOTk5ODkxOCBDNTQuMjA2LDI4Ljk5OTg5MTggNTYsMjcuMjA1ODkxOCA1NiwyNC45OTk4OTE4IEM1NiwyMi43OTM4OTE4IDU0LjIwNiwyMC45OTk4OTE4IDUyLDIwLjk5OTg5MTggTDUyLDIwLjk5OTg5MTggWiIgaWQ9IkZpbGwtMSI+PC9wYXRoPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+">
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="io.camunda:aws-bedrock:1" retries="3" />
+          <zeebe:ioMapping>
+            <zeebe:input source="credentials" target="authentication.type" />
+            <zeebe:input source="=&#34;{{secrets.AI_AWS_BEDROCK_ACCESS_KEY}}&#34;" target="authentication.accessKey" />
+            <zeebe:input source="=&#34;{{secrets.AI_AWS_BEDROCK_SECRET_KEY}}&#34;" target="authentication.secretKey" />
+            <zeebe:input source="us-east-1" target="configuration.region" />
+            <zeebe:input source="invokeModel" target="action" />
+            <zeebe:input source="anthropic.claude-3-5-sonnet-20240620-v1:0" target="data.modelId" />
+            <zeebe:input source="={&#10;    &#34;anthropic_version&#34;: &#34;bedrock-2023-05-31&#34;,    &#10;    &#34;max_tokens&#34;: 8192,&#10;    &#34;system&#34;: &#34;Act as my travel agent.\n\n# About me:\n&#34; + aboutUser + &#34;\n\n# My travel query\n\n&#34; + travelRequest + &#34;\n\n# Task\n\Arrange the best trip using the provided options by the agents.&#34;,&#10;    &#34;messages&#34;: [&#10;        {&#10;          &#34;role&#34;: &#34;user&#34;, &#10;          &#34;content&#34;: &#34;# Agent Reflections\n\n&#34; + string(agent_reflection) + &#34;\n\n# Booking Options\n\n&#34; + filteredOptions + &#34;\n\n# Task\n\nPlease select from &#39;Booking Options&#39; to assemble a trip. Important, you must not imagine, create or invent additional booking options. If something is missing mention it, eg &#39;No flights searched or found.&#39;.\n\nFormat it as a formal recommendation with markdown. Write a pretty document using bold, italic and bullet point lists to make it look nice. Close it with a brief explanation to the user why you made the choices.&#34;&#10;        }&#10;    ]&#10;}" target="data.payload" />
+          </zeebe:ioMapping>
+          <zeebe:taskHeaders>
+            <zeebe:header key="resultVariable" value="final_trip" />
+            <zeebe:header key="resultExpression" value="={&#34;final_trip&#34;: string(response.body.content[1].text)}" />
+            <zeebe:header key="retryBackoff" value="PT0S" />
+          </zeebe:taskHeaders>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_1vce2q0</bpmn:incoming>
+        <bpmn:outgoing>Flow_16nhb9y</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:endEvent id="Event_0fnidcq" name="travel agent loop completed">
+        <bpmn:incoming>Flow_1dn55c4</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:startEvent id="Event_19020l5" name="travel agent loop started">
+        <bpmn:outgoing>Flow_07d1erl</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="Flow_0xvdidi" name="yes" sourceRef="Gateway_0zmv90e" targetRef="Event_0xogevo" />
+      <bpmn:sequenceFlow id="Flow_1dn55c4" name="yes" sourceRef="Gateway_11rejr2" targetRef="Event_0fnidcq">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=agentAction = "book"</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+    </bpmn:subProcess>
+    <bpmn:startEvent id="StartEvent_1" name="travel agent process started">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=null" target="ask_user" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_0t8gas3</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_02hk0s9" name="Travel Request Input">
+      <bpmn:extensionElements>
+        <zeebe:formDefinition formId="Form_zb19qyf" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_069dstt</bpmn:incoming>
+      <bpmn:outgoing>Flow_0p2r3gt</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:association id="Association_0425gpn" associationDirection="None" sourceRef="Activity_0qu8i6a" targetRef="TextAnnotation_01wfn50" />
+    <bpmn:textAnnotation id="TextAnnotation_01wfn50">
+      <bpmn:text>What if the booking fails?
+-&gt; use an error boundary event or error start event in event-based subprocess.
+If you want to salvage the process: boundary event,
+if you want to interrupt the process: event-based subprocess</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="TextAnnotation_1k4ct4d">
+      <bpmn:text>TODO: Give hints what went wrong so the user can react</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0wg5u38" associationDirection="None" sourceRef="Event_1s0snhq" targetRef="TextAnnotation_1k4ct4d" />
+  </bpmn:process>
+  <bpmn:error id="Error_0b0466z" name="fatal - restart necessary" errorCode="fatal_restart_necessary" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_n9egkg7">
+      <bpmndi:BPMNShape id="BPMNShape_07lchct" bpmnElement="Activity_0qu8i6a">
+        <dc:Bounds x="2290" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0fhxeei_di" bpmnElement="Event_0fhxeei">
+        <dc:Bounds x="2432" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2424" y="315" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_15hgze1_di" bpmnElement="Gateway_15hgze1" isMarkerVisible="true">
+        <dc:Bounds x="255" y="265" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1mk4dj8_di" bpmnElement="Event_1mk4dj8">
+        <dc:Bounds x="2212" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2197" y="315" width="67" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="172" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="152" y="315" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1d4g87d_di" bpmnElement="Activity_02hk0s9">
+        <dc:Bounds x="340" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1e8eivr_di" bpmnElement="Activity_1e8eivr" isExpanded="true">
+        <dc:Bounds x="490" y="150" width="1680" height="580" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1k7pz1y" bpmnElement="Activity_10isszj">
+        <dc:Bounds x="1545" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0a3q10f_di" bpmnElement="Event_12fxaw2">
+        <dc:Bounds x="1617" y="462" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1605" y="505" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0a7n1if" bpmnElement="Event_0w82kpb">
+        <dc:Bounds x="2087" y="392" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2061" y="435" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_04twkgj" bpmnElement="Event_1mcib2v">
+        <dc:Bounds x="537" y="392" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="511" y="435" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0h0zlf5" bpmnElement="Gateway_1i8lu60" isMarkerVisible="true">
+        <dc:Bounds x="620" y="265" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0eg34fn_di" bpmnElement="Event_0xogevo">
+        <dc:Bounds x="957" y="372" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="938" y="415" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1b51lpk" bpmnElement="Gateway_0zmv90e" isMarkerVisible="true">
+        <dc:Bounds x="850" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="837" y="235" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0v8ji7x" bpmnElement="Gateway_11rejr2" isMarkerVisible="true">
+        <dc:Bounds x="1970" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1963" y="235" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_13bampj" bpmnElement="Event_0mxgu99">
+        <dc:Bounds x="957" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="938" y="315" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0i8hce8" bpmnElement="Activity_0af1fsn">
+        <dc:Bounds x="1825" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1as7b3r" bpmnElement="Activity_1euydfr">
+        <dc:Bounds x="705" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0lg0bw2" bpmnElement="Activity_1vz26di">
+        <dc:Bounds x="1685" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1xznxus_di" bpmnElement="Event_0fnidcq">
+        <dc:Bounds x="2087" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2065" y="315" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1xk2d9x_di" bpmnElement="Event_19020l5">
+        <dc:Bounds x="537" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="515" y="315" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1cmwfem" bpmnElement="Activity_06fk3nr" isExpanded="true">
+        <dc:Bounds x="1035" y="200" width="470" height="490" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_18ahog0" bpmnElement="Event_11qqcjc">
+        <dc:Bounds x="1417" y="472" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1392" y="515" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_10mo5zu" bpmnElement="Activity_1q7lie0">
+        <dc:Bounds x="1275" y="450" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_16l6k7f" bpmnElement="Event_1bcvlay">
+        <dc:Bounds x="1417" y="592" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1408" y="635" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0n1og84" bpmnElement="Activity_1v40ho8">
+        <dc:Bounds x="1275" y="570" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0hf2rlt" bpmnElement="Event_17u2fzp">
+        <dc:Bounds x="1417" y="352" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1408" y="395" width="55" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1c71x0e" bpmnElement="Activity_0xvq4gn">
+        <dc:Bounds x="1275" y="330" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1b3eod1_di" bpmnElement="Event_09bcxxs">
+        <dc:Bounds x="1417" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1409" y="315" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0lsgge1" bpmnElement="Event_1nftt3l">
+        <dc:Bounds x="1077" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1057" y="315" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0eog9ui" bpmnElement="Gateway_0vixnk6">
+        <dc:Bounds x="1160" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1143" y="235" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_0y5dyxa" bpmnElement="Flow_14ejav6">
+        <di:waypoint x="1375" y="490" />
+        <di:waypoint x="1417" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_15u5ysf" bpmnElement="Flow_0gjxk47">
+        <di:waypoint x="1185" y="315" />
+        <di:waypoint x="1185" y="490" />
+        <di:waypoint x="1275" y="490" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1210" y="469" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_12al9kp" bpmnElement="Flow_1dgataw">
+        <di:waypoint x="1375" y="610" />
+        <di:waypoint x="1417" y="610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_09nlrro" bpmnElement="Flow_0m3946w">
+        <di:waypoint x="1185" y="315" />
+        <di:waypoint x="1185" y="610" />
+        <di:waypoint x="1275" y="610" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1206" y="593" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1o7rad8" bpmnElement="Flow_0u7bbex">
+        <di:waypoint x="1375" y="370" />
+        <di:waypoint x="1417" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0i1tddo" bpmnElement="Flow_1sp67o9">
+        <di:waypoint x="1185" y="315" />
+        <di:waypoint x="1185" y="370" />
+        <di:waypoint x="1275" y="370" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1190" y="352" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0hjra2c_di" bpmnElement="Flow_0hjra2c">
+        <di:waypoint x="1210" y="290" />
+        <di:waypoint x="1417" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_16ww5km" bpmnElement="Flow_1ii72el">
+        <di:waypoint x="1113" y="290" />
+        <di:waypoint x="1160" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="BPMNShape_0phi22j" bpmnElement="Event_1s0snhq">
+        <dc:Bounds x="1487" y="462" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1513" y="496" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_1tftjyl" bpmnElement="Flow_11ns9ga">
+        <di:waypoint x="1505" y="290" />
+        <di:waypoint x="1545" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1ni8l1m" bpmnElement="Flow_1vce2q0">
+        <di:waypoint x="1645" y="290" />
+        <di:waypoint x="1685" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1oo2h6a" bpmnElement="Flow_0p75q7z">
+        <di:waypoint x="1523" y="480" />
+        <di:waypoint x="1617" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1nqqagh" bpmnElement="Flow_0125gfk">
+        <di:waypoint x="1995" y="315" />
+        <di:waypoint x="1995" y="410" />
+        <di:waypoint x="2087" y="410" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2024" y="389" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_056vu1y" bpmnElement="Flow_0wnmdyo">
+        <di:waypoint x="573" y="410" />
+        <di:waypoint x="645" y="410" />
+        <di:waypoint x="645" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_14qtt0m" bpmnElement="Flow_07d1erl">
+        <di:waypoint x="573" y="290" />
+        <di:waypoint x="620" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1bge4bk" bpmnElement="Flow_0k4qsoh">
+        <di:waypoint x="670" y="290" />
+        <di:waypoint x="705" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_066ln2a" bpmnElement="Flow_0xvdidi">
+        <di:waypoint x="875" y="315" />
+        <di:waypoint x="875" y="390" />
+        <di:waypoint x="957" y="390" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="898" y="372" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0nsfcsa" bpmnElement="Flow_15ycwt5">
+        <di:waypoint x="805" y="290" />
+        <di:waypoint x="850" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1owc5kv" bpmnElement="Flow_1planii">
+        <di:waypoint x="900" y="290" />
+        <di:waypoint x="957" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="899" y="272" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0muv9fb" bpmnElement="Flow_09duxhp">
+        <di:waypoint x="1925" y="290" />
+        <di:waypoint x="1970" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_02q3iuq" bpmnElement="Flow_1dn55c4">
+        <di:waypoint x="2020" y="290" />
+        <di:waypoint x="2087" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2024" y="272" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_145gwo8" bpmnElement="Flow_1jothvu">
+        <di:waypoint x="993" y="290" />
+        <di:waypoint x="1035" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1v9lsee" bpmnElement="Flow_16nhb9y">
+        <di:waypoint x="1785" y="290" />
+        <di:waypoint x="1825" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_0425gpn_di" bpmnElement="Association_0425gpn">
+        <di:waypoint x="2340" y="250" />
+        <di:waypoint x="2340" y="173" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1jujiym" bpmnElement="Association_0wg5u38">
+        <di:waypoint x="1520" y="470" />
+        <di:waypoint x="1570" y="396" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_17b8vrh_di" bpmnElement="Event_1i9z5oj">
+        <dc:Bounds x="472" y="372" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="402" y="406" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_051gaxv_di" bpmnElement="Event_0xrigcp">
+        <dc:Bounds x="472" y="462" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="419" y="496" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_01wfn50_di" bpmnElement="TextAnnotation_01wfn50">
+        <dc:Bounds x="2310" y="80" width="379" height="93" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0ikmrub" bpmnElement="TextAnnotation_1k4ct4d">
+        <dc:Bounds x="1570" y="360" width="155" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1aahb98_di" bpmnElement="Flow_1aahb98">
+        <di:waypoint x="2248" y="290" />
+        <di:waypoint x="2290" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1e8wmah_di" bpmnElement="Flow_1e8wmah">
+        <di:waypoint x="2390" y="290" />
+        <di:waypoint x="2432" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0d49ikq_di" bpmnElement="Flow_0d49ikq">
+        <di:waypoint x="472" y="390" />
+        <di:waypoint x="280" y="390" />
+        <di:waypoint x="280" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0t8gas3_di" bpmnElement="Flow_0t8gas3">
+        <di:waypoint x="208" y="290" />
+        <di:waypoint x="255" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_069dstt_di" bpmnElement="Flow_069dstt">
+        <di:waypoint x="305" y="290" />
+        <di:waypoint x="340" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0uk06sw_di" bpmnElement="Flow_0uk06sw">
+        <di:waypoint x="2170" y="290" />
+        <di:waypoint x="2212" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0p2r3gt_di" bpmnElement="Flow_0p2r3gt">
+        <di:waypoint x="440" y="290" />
+        <di:waypoint x="490" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1tk3u08_di" bpmnElement="Flow_1tk3u08">
+        <di:waypoint x="472" y="480" />
+        <di:waypoint x="390" y="480" />
+        <di:waypoint x="390" y="620" />
+        <di:waypoint x="490" y="620" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
