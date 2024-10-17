@@ -68,7 +68,7 @@
         <zeebe:taskDefinition type="io.camunda:aws-bedrock:1" retries="3" />
         <zeebe:ioMapping>
           <zeebe:input source="credentials" target="authentication.type" />
-          <zeebe:input source="=&#34;{{secrets.AI_AWS_BEDROCK_SECRET_KEY}}&#34;" target="authentication.accessKey" />
+          <zeebe:input source="=&#34;{{secrets.AI_AWS_BEDROCK_ACCESS_KEY}}&#34;" target="authentication.accessKey" />
           <zeebe:input source="=&#34;{{secrets.AI_AWS_BEDROCK_SECRET_KEY}}&#34;" target="authentication.secretKey" />
           <zeebe:input source="us-east-1" target="configuration.region" />
           <zeebe:input source="invokeModel" target="action" />
